@@ -1,0 +1,375 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        -160
+      ],
+      "id": "b0a289a4-f456-4f81-a540-37eec97ac0a0",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BXK93pWnlyUMB9xs",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject : {{ $json.Subject }}\nMessage : {{ $json.snippet }}\nLabel : {{ $json.labels }}\nFrom : {{ $json.From }}\nTo : {{ $json.To }}",
+        "options": {
+          "systemMessage": "=You are a professional email manager. You will receive thousands of emails. Your task is to:\n\nIgnore any emails related to promotions, advertisements, spam, or unrelated offers.\n\nIdentify emails that are relevant to clients, inquiries, or service requests. This includes requests related to software development, website development, AI, data science, or computer science.\n\nDraft a professional reply for relevant emails using the following introduction about me:\n\nI am a dedicated Agentic AI Developer and AI Automation Developer with expertise in building intelligent systems, AI-powered automations, and voice/chat assistants. My work focuses on integrating LLMs, APIs, and automation frameworks to create scalable, real-world solutions for healthcare, productivity, and business applications.\n\nWith extensive experience in OpenAI Agent SDK, CrewAI, LangChain, LangGraph, and Model Context Protocol (MCP), I specialize in building multi-agent systems that can communicate, collaborate, and deliver exceptional results. I leverage n8n for automation and orchestration, creating seamless workflows that integrate with various APIs and services.\n\nMy technical stack includes Python, FastAPI, Next.js, and Streamlit for web and backend development. I work with cutting-edge AI integrations including Gemini, Tavily, ElevenLabs, and various Google APIs (Gmail, Sheets, Calendar) as well as social media APIs (Facebook, Twitter, LinkedIn) to create comprehensive solutions across multiple domains.\n\nInstructions for the reply:\n\nBe polite, professional, and concise.\n\nOffer my services if the email is relevant.\n\nIf the email is unrelated (e.g., promotions), do not respond.\n\nInclude my expertise and capabilities naturally within the response.\n\nEnsure the reply is suitable for client communications and highlights my technical proficiency."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -272,
+        -160
+      ],
+      "id": "a9cc5d61-d1a5-4ebc-91fe-6ceb733605c2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        48
+      ],
+      "id": "6dd8d612-2a3c-4cbf-964a-5b801769a132",
+      "name": "Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pLDFVhH5BfhdIAfk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "1415",
+        "tableName": "Ultimate_email_agent"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        48
+      ],
+      "id": "a3ce303c-e8f1-4aa4-adf7-d7f43559742a",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "2lZ98sJ7vyoFUVoj",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Get Email & Draft a reply",
+        "height": 448,
+        "width": 672,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "fe9376d7-d1f4-4a22-9bc9-77b214268adc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the plain text from the Gmail trigger\nconst text = $json.output || $json.snippet || \"\";\n\n// Extract subject\nconst subjectMatch = text.match(/^Subject:\\s*(.*)/m);\nconst subject = subjectMatch ? subjectMatch[1].trim() : \"\";\n\n// Extract message body\nconst message = text.replace(/^Subject:.*\\n*/, \"\").trim();\n\n// Get \"to\" and \"from\" dynamically from Gmail trigger fields\nconst to = $json.payload?.headers?.find(h => h.name === \"To\")?.value || \"\";\nconst from = $json.payload?.headers?.find(h => h.name === \"From\")?.value || \"\";\n\n// Return clean JSON\nreturn [\n  {\n    json: {\n      subject,\n      message,\n      to,\n      from\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "0e3b6b1d-1fed-408e-94a6-e22229ac7ef3",
+      "name": "Split"
+    },
+    {
+      "parameters": {
+        "content": "# Split Text\n",
+        "height": 224,
+        "width": 304,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        112,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "c1937327-0d37-4f6c-bcba-75e7ee5acf05",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MjUNOfg52mkEwfJhct2Px4eGuzU24gl0pU1CNOHZVjs",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MjUNOfg52mkEwfJhct2Px4eGuzU24gl0pU1CNOHZVjs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MjUNOfg52mkEwfJhct2Px4eGuzU24gl0pU1CNOHZVjs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "                              Subject": "={{ $json.subject }}",
+            "                                     Message ": "={{ $json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "                              Subject",
+              "displayName": "                              Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "                                     Message ",
+              "displayName": "                                     Message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        -160
+      ],
+      "id": "6a5af988-feb5-4c36-88b5-07a6131e429e",
+      "name": "Notify On Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HC46zTUJIGqr0ynJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Notify on Google Sheet",
+        "height": 272,
+        "width": 416,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        448,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "56fd52cd-5d3e-44cf-9558-6e7917dd6527",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "sendTo": "abubakarbinzohaib@gmail.com",
+        "subject": "={{ $('Split').item.json.subject }}",
+        "message": "={{ $('Split').item.json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        -160
+      ],
+      "id": "54eda504-4e3c-4ca2-a9b0-1b5c3fc58e83",
+      "name": "Send a message",
+      "webhookId": "be51b247-4925-4018-a9af-c1845566b67a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BXK93pWnlyUMB9xs",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "abubakarbinzohaib@gmail.com",
+        "subject": "Approval Request",
+        "message": "={{ $('Split').item.json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        -160
+      ],
+      "id": "eae1cc58-ff64-422f-89e9-a97b296f1a49",
+      "name": "Send a message1",
+      "webhookId": "72cf59ab-42ac-41c9-9a6b-08d2619d62b5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BXK93pWnlyUMB9xs",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Human In The Loop",
+        "height": 288,
+        "width": 352,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "81836e52-a9fb-49a2-9b51-f1472b771e0d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# Reply to Email\n",
+        "height": 240,
+        "width": 336,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "a99b0ca1-8874-4692-a1ea-1c32f0e34cde",
+      "name": "Sticky Note4"
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Split",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split": {
+      "main": [
+        [
+          {
+            "node": "Notify On Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify On Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "418787cb6067b0aad1aa2d090a6682054afffaa93c1add92822c5cd65cde9fe2"
+  }
+}
