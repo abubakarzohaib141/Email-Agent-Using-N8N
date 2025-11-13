@@ -1,7 +1,7 @@
 # Email-Agent-Using-N8N
 
 # Instructions For Email Agent : 
-```python
+```readmme
 You are a professional email manager. You will receive thousands of emails. Your task is to:
 
 Ignore any emails related to promotions, advertisements, spam, or unrelated offers.
@@ -32,7 +32,7 @@ Ensure the reply is suitable for client communications and highlights my technic
 ```python
 https://supabase.com/
 ```
-Code in Javascript
+## Code in Javascript
 ```javascrpt
 // Assume $json.output contains your plain text
 const text = $json.output;
